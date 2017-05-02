@@ -6,20 +6,20 @@ CREATE VIEW ProductMetaView AS SELECT p.ID pv_id, (CASE
         ELSE
             p.post_parent
         END) product_id, pm.meta_value sku, p.post_type post_type 
-FROM `wp_xeroshoes_postmeta` pm 
-INNER JOIN `wp_xeroshoes_posts` p ON p.ID = pm.post_id
+FROM `wp_postmeta` pm 
+INNER JOIN `wp_posts` p ON p.ID = pm.post_id
 WHERE pm.meta_key = '_sku'
 AND p.post_type IN ('product_variation','product') 
 AND p.post_status = 'publish';
 #SELECT * FROM ProductMetaView
 
 CREATE VIEW ProductCategoryView AS
-SELECT wp_xeroshoes_term_relationships.object_id product_id, GROUP_CONCAT(wp_xeroshoes_terms.name SEPARATOR ', ') product_cat
-FROM wp_xeroshoes_term_relationships,wp_xeroshoes_term_taxonomy,wp_xeroshoes_terms 
-WHERE wp_xeroshoes_term_relationships.term_taxonomy_id = wp_xeroshoes_term_taxonomy.term_taxonomy_id AND
-wp_xeroshoes_term_taxonomy.term_id = wp_xeroshoes_terms.term_id AND
-wp_xeroshoes_term_taxonomy.taxonomy = 'product_cat'
-GROUP BY wp_xeroshoes_term_relationships.object_id;
+SELECT wp_term_relationships.object_id product_id, GROUP_CONCAT(wp_terms.name SEPARATOR ', ') product_cat
+FROM wp_term_relationships,wp_term_taxonomy,wp_terms 
+WHERE wp_term_relationships.term_taxonomy_id = wp_term_taxonomy.term_taxonomy_id AND
+wp_term_taxonomy.term_id = wp_terms.term_id AND
+wp_term_taxonomy.taxonomy = 'product_cat'
+GROUP BY wp_term_relationships.object_id;
 #SELECT * FROM ProductCategoryView 
 
 CREATE VIEW OrderMetaViewPV AS
@@ -29,12 +29,12 @@ SELECT DISTINCT woim.order_item_id order_item_id,(CASE
         ELSE
             woim2.meta_value
         END) pv_id, woim.meta_value product_id,woim5.meta_value _qty, woim3.meta_value _line_subtotal,woim4.meta_value _line_total,woi.order_item_name,woi.order_item_type,woi.order_id order_id
-FROM (((((`wp_xeroshoes_woocommerce_order_itemmeta` woim
-JOIN `wp_xeroshoes_woocommerce_order_itemmeta` woim2 ON woim.order_item_id = woim2.order_item_id)
-JOIN `wp_xeroshoes_woocommerce_order_itemmeta` woim3 ON woim.order_item_id = woim3.order_item_id)
-JOIN `wp_xeroshoes_woocommerce_order_itemmeta` woim4 ON woim.order_item_id = woim4.order_item_id)
-JOIN `wp_xeroshoes_woocommerce_order_itemmeta` woim5 ON woim.order_item_id = woim5.order_item_id)
-JOIN `wp_xeroshoes_woocommerce_order_items` woi ON  woim.order_item_id =  woi.order_item_id )
+FROM (((((`wp_woocommerce_order_itemmeta` woim
+JOIN `wp_woocommerce_order_itemmeta` woim2 ON woim.order_item_id = woim2.order_item_id)
+JOIN `wp_woocommerce_order_itemmeta` woim3 ON woim.order_item_id = woim3.order_item_id)
+JOIN `wp_woocommerce_order_itemmeta` woim4 ON woim.order_item_id = woim4.order_item_id)
+JOIN `wp_woocommerce_order_itemmeta` woim5 ON woim.order_item_id = woim5.order_item_id)
+JOIN `wp_woocommerce_order_items` woi ON  woim.order_item_id =  woi.order_item_id )
 WHERE woim.meta_key = '_product_id'
 AND woim2.meta_key = '_variation_id'
 AND woim3.meta_key = '_line_subtotal'
@@ -43,7 +43,7 @@ AND woim5.meta_key = '_qty';
 #SELECT * FROM OrderMetaViewPV 
 
 CREATE VIEW OrderView AS
-SELECT ID order_id,post_date order_date FROM wp_xeroshoes_posts p
+SELECT ID order_id,post_date order_date FROM wp_posts p
 WHERE p.post_type = 'shop_order'
 AND p.post_status = 'wc-completed' ;
 #SELECT * FROM OrderView
